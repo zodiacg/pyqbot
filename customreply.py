@@ -1,22 +1,27 @@
 import random
 import re
 
-_last_repeat_msg = ''
+_last_repeat_msg = {}
 
 
 async def nature_of_human(ctx, G, bot):
     global _last_repeat_msg
     rnd = random.random()
     grp_id = ctx['group_id']
+
+    if grp_id not in _last_repeat_msg:
+        _last_repeat_msg[grp_id] = ''
+    last_repeat = _last_repeat_msg[grp_id]
+
     last_msg = G.find_msg(grp_id, 0, 2)
     # follow repeating with 0.9 prob
     if len(last_msg) >= 2 and last_msg[0][1] == last_msg[1][1] and last_msg[0][0] != last_msg[1][0] \
-            and rnd < 0.8 and last_msg[0][1] != _last_repeat_msg:
-        _last_repeat_msg = last_msg[0][1]
+            and rnd < 0.8 and last_msg[0][1] != last_repeat:
+        _last_repeat_msg[grp_id] = last_msg[0][1]
         return last_msg[0][1]
     # start repeating with 0.01 prob
-    if rnd < 0.01 and last_msg[0][1] != _last_repeat_msg:
-        _last_repeat_msg = last_msg[0][1]
+    if rnd < 0.01 and last_msg[0][1] != last_repeat:
+        _last_repeat_msg[grp_id] = last_msg[0][1]
         return last_msg[0][1]
 
 
