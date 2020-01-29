@@ -4,6 +4,7 @@
 
 ## Features
 
+### 事件响应
 目前仅支持聊天消息的事件响应：
 
 * 支持群/私聊消息
@@ -18,9 +19,12 @@
 * 保存运行期间群消息记录，每群最多200条，，可按发言人查询或任意查询
 * python-aiocqhttp支持的其它酷Q HTTP API调用
 
+### 定时任务
+
+支持使用cron触发格式设置定时任务
+
 ## To Do
 
-* 定时任务的设置
 * notice和request的处理（因为我用不到，优先度很低）
 
 ## Usage
@@ -28,16 +32,24 @@
 bot.py, internal.py为框架核心文件，不建议修改。
 
 config.py存储了QQ机器人的配置。
-其中bot_commands为匹配处理器，default_proc为无匹配时的处理器。
+其中bot_commands为匹配处理器，default_proc为无匹配时的处理器，scheduled_tasks为定时任务。
 添加格式参见注释。
+
+所有的处理函数必须为async函数，以正常调用酷Q HTTP API。处理器函数参数参考实例中的函数签名设置。
 
 ## Example
 
-customreply.py实现了两个小功能。
+### customreply.py
 
-一个使用正则匹配触发，在有人问“有人XXX吗”的时候以一定概率回复“没有，guna”。
+实现了三个小功能。
 
-一个无匹配触发，以90%的概率跟从复读，或以2%的概率复读上一个人。
+* 在有人问“有人XXX吗”的时候以一定概率回复“没有，guna”。
+* 有人问“XXX刚刚说了啥”的时候回复所记录的3条此人发言记录。XXX仅限QQ号检索。
+* 以90%的概率跟从复读，或以1%的概率复读上一个人。
+
+### bigbenclock.py
+
+实现了一个定时触发函数，当到达整点的时候在函数groups数组中的群里发送整点数个“当”。
 
 ## Acknowledgements
 [richardchien/python-aiocqhttp](https://github.com/richardchien/python-aiocqhttp)

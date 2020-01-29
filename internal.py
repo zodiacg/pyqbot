@@ -1,14 +1,16 @@
 from collections import namedtuple, deque
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 __all__ = [
     'CB_FUNC', 'CD_TIME', 'F_AT', 'F_MSG', 'F_PRIV_GRP', 'F_REGEX', 'GRP_LIST',
     'Holder'
 ]
 
-CB_FUNC=0
-CD_TIME=1
-F_PRIV_GRP=2
-GRP_LIST=3
+CB_FUNC = 0
+CD_TIME = 1
+F_PRIV_GRP = 2
+GRP_LIST = 3
 F_REGEX=4
 F_MSG=5
 F_AT=6
@@ -19,6 +21,7 @@ class Holder(object):
         self.cmd_stats = {}
         self.default_stats = {}
         self.chat_history = {}
+        self.scheduler = AsyncIOScheduler()
 
     def append_msg(self, group_id, sender_id, msg):
         if group_id not in self.chat_history:
@@ -38,7 +41,7 @@ class Holder(object):
         for entry in self.chat_history[group_id]:
             if entry[0] == sender_id:
                 msg.append(entry)
-            if len(msg) > maxlen:
+            if len(msg) >= maxlen:
                 break
         return msg
 

@@ -1,9 +1,13 @@
-from internal import const as C
-
+import bigbenclock
 import customreply
+from internal import const as C
 
 host = '127.0.0.1'
 port = 9876
+
+scheduler_opt = {
+    'apscheduler.timezone': 'Asia/Shanghai'
+}
 
 bot_commands = {
     # keyword: [callback_func, cooldown in secs, grp/priv, enabled groups, regex, msg, at_sender]
@@ -17,5 +21,6 @@ default_proc = [
 ]
 
 scheduled_tasks = [
-    # (callback_func, {cron typed time})
+    # (callback_func, {cron typed time dict})
+    (bigbenclock.bigben, {'hour': '*'})
 ]

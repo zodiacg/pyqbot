@@ -1,10 +1,11 @@
-import time
 import re
+import time
+
 from aiocqhttp import CQHttp
 
+import config as cfg
 from internal import *
 from internal import const as C
-import config as cfg
 
 G = Holder()
 
@@ -70,11 +71,11 @@ async def handle_msg(ctx):
             try:
                 reply_msg = await func[CB_FUNC](ctx, G, bot)
             except BaseException as e:
-                print(e)
+                print('base', e)
                 reply_msg = ''
-            if reply_msg != '':
+            if reply_msg:
                 G.default_stats[idx] = time.time()
-                bot.logger.info('Msg processed by default routine {}: {}'.format(idx, func[CB_FUNC].__nane__))
+                bot.logger.info('Msg processed by default routine {}: {}'.format(idx, func[CB_FUNC].__name__))
                 resp_json = {'reply': reply_msg, 'at_sender': False}
                 break
     else:
@@ -83,11 +84,11 @@ async def handle_msg(ctx):
         try:
             reply_msg = await cfg.bot_commands[matched_cmd][CB_FUNC](ctx, G, bot)
         except BaseException as e:
-            print(e)
+            print('cmd', e)
             reply_msg = ''
-        if reply_msg != '':
+        if reply_msg:
             G.cmd_stats[matched_cmd] = time.time()
-            bot.logger.info('Msg processed by matched cmd: {}'.format(cfg.bot_commands[matched_cmd][CB_FUNC].__nane__))
+            bot.logger.info('Msg processed by matched cmd: {}'.format(cfg.bot_commands[matched_cmd][CB_FUNC].__name__))
             resp_json = {'reply': reply_msg, 'at_sender': cfg.bot_commands[matched_cmd][F_AT]}
 
     if resp_json:
@@ -97,4 +98,16 @@ async def handle_msg(ctx):
 
 
 if __name__ == '__main__':
-    bot.run(host=cfg.host, port=cfg.port)
+    # add tasks
+    for func, job_time in cfg.scheduled_tasks:
+        G.scheduler.add_job(func, trigger='cron', args=(G, bot), **job_time)
+
+
+    def _start_scheduler():
+        # use configure to make sure scheduler get the correct event loop
+        G.scheduler.configure(cfg.scheduler_opt)
+        G.scheduler.start()
+
+
+    bot.server_app.before_serving(_start_scheduler)
+    bot.run(host=cfg.host, port=cfg.port, debug=True)
