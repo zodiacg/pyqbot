@@ -68,23 +68,26 @@ async def handle_msg(ctx):
                 continue
             # handle routine
             try:
-                reply_msg = func[CB_FUNC](ctx, G, bot)
-            except BaseException:
+                reply_msg = await func[CB_FUNC](ctx, G, bot)
+            except BaseException as e:
+                print(e)
                 reply_msg = ''
             if reply_msg != '':
                 G.default_stats[idx] = time.time()
+                bot.logger.info('Msg processed by default routine {}: {}'.format(idx, func[CB_FUNC].__nane__))
                 resp_json = {'reply': reply_msg, 'at_sender': False}
                 break
     else:
         # matched command
         ctx['cmd'] = matched_cmd
         try:
-            reply_msg = cfg.bot_commands[matched_cmd][CB_FUNC](ctx, G, bot)
-        except BaseException:
-            print('catch')
+            reply_msg = await cfg.bot_commands[matched_cmd][CB_FUNC](ctx, G, bot)
+        except BaseException as e:
+            print(e)
             reply_msg = ''
         if reply_msg != '':
             G.cmd_stats[matched_cmd] = time.time()
+            bot.logger.info('Msg processed by matched cmd: {}'.format(cfg.bot_commands[matched_cmd][CB_FUNC].__nane__))
             resp_json = {'reply': reply_msg, 'at_sender': cfg.bot_commands[matched_cmd][F_AT]}
 
     if resp_json:
