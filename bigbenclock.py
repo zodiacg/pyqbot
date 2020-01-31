@@ -6,7 +6,8 @@ async def bigben(G, bot):
     hour = int(time.strftime('%I'))
     msg = ''
     for _ in range(hour):
-        msg += '当'
+        msg += '呐'
+    msg += ' 现在是北京时间{}点整呢'.format(hour)
     if not groups:
         return
     try:
