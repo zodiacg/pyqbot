@@ -22,6 +22,13 @@ class Holder(object):
         self.default_stats = {}
         self.chat_history = {}
         self.scheduler = AsyncIOScheduler()
+        self.plugin_storage = {}
+
+    def __getattr__(self, item):
+        if item in self.plugin_storage:
+            return self.plugin_storage[item]
+        else:
+            raise AttributeError("Object has no attribute '{}'".format(item))
 
     def append_msg(self, group_id, sender_id, msg):
         if group_id not in self.chat_history:
@@ -44,6 +51,12 @@ class Holder(object):
             if len(msg) >= maxlen:
                 break
         return msg
+
+    def set_plugin_storage(self, name, value):
+        if name not in self.plugin_storage:
+            self.plugin_storage[name] = value
+        else:
+            raise Exception('Do not call set_plugin_storage twice for {}'.format(name))
 
 
 # Not __all__

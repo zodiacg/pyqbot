@@ -1,11 +1,13 @@
 import random
 import re
 
-_last_repeat_msg = {}
-
 
 async def nature_of_human(ctx, G, bot):
-    global _last_repeat_msg
+    try:
+        _last_repeat_msg = G.last_repeat_msg
+    except AttributeError:
+        G.set_plugin_storage('last_repeat_msg', '')
+        _last_repeat_msg = ''
     rnd = random.random()
     grp_id = ctx['group_id']
 
