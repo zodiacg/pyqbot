@@ -3,15 +3,15 @@ from collections import namedtuple, deque
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 __all__ = [
-    'CB_FUNC', 'CD_TIME', 'F_AT', 'F_MSG', 'F_PRIV_GRP', 'F_REGEX', 'GRP_LIST',
+    'CB_FUNC', 'CD_TIME', 'F_AT', 'F_MSG', 'F_PRIV_GRP', 'F_REGEX', 'WHITELIST',
     'Holder'
 ]
 
 CB_FUNC = 0
 CD_TIME = 1
 F_PRIV_GRP = 2
-GRP_LIST = 3
-F_REGEX=4
+WHITELIST = 3
+F_REGEX = 4
 F_MSG=5
 F_AT=6
 
@@ -19,7 +19,6 @@ F_AT=6
 class Holder(object):
     def __init__(self):
         self.cmd_stats = {}
-        self.default_stats = {}
         self.chat_history = {}
         self.scheduler = AsyncIOScheduler()
         self.plugin_storage = {}

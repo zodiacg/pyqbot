@@ -13,6 +13,23 @@ bot = CQHttp(access_token='abracadabra',
              enable_http_post=False)
 
 
+def general_check(ctx, cmd, func):
+    # check cooldown
+    if func[CD_TIME] != 0 and cmd in G.cmd_stats and time.time() - G.cmd_stats[cmd] < func[CD_TIME]:
+        return False
+    # filter private and group
+    if ctx['message_type'] not in func[F_PRIV_GRP]:
+        return False
+    # check if enabled for the group
+    if ctx['message_type'] == 'group' and func[WHITELIST] and ctx['group_id'] not in func[WHITELIST]:
+        return False
+    # check if enabled for the friend, but allow everything for superuser
+    if func[F_PRIV_GRP] == {'private'} and func[WHITELIST] and ctx['user_id'] not in func[WHITELIST] \
+            and ctx['user_id'] != cfg.super_user:
+        return False
+    return True
+
+
 @bot.on_message
 async def handle_msg(ctx):
     # prepare reply
@@ -29,14 +46,8 @@ async def handle_msg(ctx):
     # check commands
     matched_cmd = None
     for cmd, func in cfg.bot_commands.items():
-        # check cooldown
-        if func[CD_TIME] !=0 and cmd in G.cmd_stats and time.time() - G.cmd_stats[cmd] < func[CD_TIME]:
-            continue
-        # filter private and group
-        if ctx['message_type'] not in func[F_PRIV_GRP]:
-            continue
-        # check if enabled for the group
-        if ctx['message_type'] == 'group' and func[GRP_LIST] and ctx['group_id'] not in func[GRP_LIST]:
+        # general check
+        if not general_check(ctx, cmd, func):
             continue
         # choose proper matching method
         # regex
@@ -58,23 +69,17 @@ async def handle_msg(ctx):
     if not matched_cmd:
         # default routine
         for idx, func in enumerate(cfg.default_proc):
-            # check cooldown
-            if func[CD_TIME] != 0 and idx in G.default_stats and time.time() - G.default_stats[idx] < func[CD_TIME]:
-                continue
-            # filter private and group
-            if ctx['message_type'] not in func[F_PRIV_GRP]:
-                continue
-            # check if enabled for the group
-            if ctx['message_type'] == 'group' and func[GRP_LIST] and ctx['group_id'] not in func[GRP_LIST]:
+            cmd = f'_default_routine_{idx}'
+            if not general_check(ctx, cmd, func):
                 continue
             # handle routine
             try:
                 reply_msg = await func[CB_FUNC](ctx, G, bot)
             except BaseException as e:
-                print('base', e)
+                print('default', e)
                 reply_msg = ''
             if reply_msg:
-                G.default_stats[idx] = time.time()
+                G.cmd_stats[cmd] = time.time()
                 bot.logger.info('Msg processed by default routine {}: {}'.format(idx, func[CB_FUNC].__name__))
                 resp_json = {'reply': reply_msg, 'at_sender': False}
                 break

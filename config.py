@@ -5,6 +5,8 @@ from internal import const as C
 host = '127.0.0.1'
 port = 9876
 
+super_user = 10000
+
 scheduler_opt = {
     'apscheduler.timezone': 'Asia/Shanghai'
 }
@@ -12,7 +14,8 @@ scheduler_opt = {
 bot_commands = {
     # keyword: [callback_func, cooldown in secs, grp/priv, enabled groups, regex, msg, at_sender]
     r'.*有人.+[吗嘛][\?？]?': [customreply.guna, 0, C.GROUP, set(), C.REGEX, C.NO_MSG, C.NO_AT_SENDER],
-    r'^(\d+)刚[刚才]说了(啥|什么)[?？]?$': [customreply.stalker, 0, C.GROUP, set(), C.REGEX, C.NO_MSG, C.AT_SENDER]
+    r'^(\d+)刚[刚才]说了(啥|什么)[?？]?$': [customreply.stalker, 0, C.GROUP, set(), C.REGEX, C.NO_MSG, C.AT_SENDER],
+    r'/echo': [customreply.echo_priv, 0, C.PRIVATE, {20000}, C.NOT_REGEX, C.MSG, C.NO_AT_SENDER]
 }
 
 default_proc = [

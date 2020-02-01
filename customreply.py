@@ -48,3 +48,8 @@ async def stalker(ctx, G, bot):
                 resp_msg = '{}刚才啥也没说'.format(usr['card'] or usr['nickname'])
             return resp_msg
     return '谁啊，不认识'
+
+
+async def echo_priv(ctx, G, bot):
+    await bot.send_private_msg(user_id=ctx['user_id'], message='你发了：')
+    return ctx['message']
