@@ -1,5 +1,6 @@
 import random
 import re
+import urllib.parse
 
 
 async def nature_of_human(ctx, G, bot):
@@ -22,7 +23,7 @@ async def nature_of_human(ctx, G, bot):
         _last_repeat_msg[grp_id] = last_msg[0][1]
         return last_msg[0][1]
     # start repeating with 0.01 prob
-    if rnd < 0.01 and last_msg[0][1] != last_repeat:
+    if rnd < 0.002 and last_msg[0][1] != last_repeat:
         _last_repeat_msg[grp_id] = last_msg[0][1]
         return last_msg[0][1]
 
@@ -52,4 +53,9 @@ async def stalker(ctx, G, bot):
 
 async def echo_priv(ctx, G, bot):
     await bot.send_private_msg(user_id=ctx['user_id'], message='你发了：')
-    return ctx['message']
+    return ctx['message'][len(ctx['cmd']):].lstrip()
+
+
+async def cnm(ctx, G, bot):
+    search_words = ctx['message'][len(re.match(ctx['cmd'], ctx['message'])[0]):].lstrip()
+    return "https://iwo.im/?q={}".format(urllib.parse.quote_plus(search_words))
